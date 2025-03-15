@@ -5,6 +5,7 @@ import  CustomError  from "../middlewares/errorhandler.middleware";
 import Product from "../models/product.model";
 import Order from "../models/order.model";
 import { sendOrderConfirmationEmail } from "../utils/orderconfirmationEmail.util";
+import { getPaginationData } from "../utils/pagination.utils";
 
 
 
@@ -70,18 +71,84 @@ export const placeOrder = asyncHandler(async(req: Request, res: Response) => {
 
 //get all orders
 
-export const getAllOrder = asyncHandler(async(req: Request, res:Response) => {
+export const getAllOrder = asyncHandler(async(req: Request, res: Response) => {
+    const {page, limit,query, status, user, minAmount, maxAmount, startDate, endDate, orderId} = req.query;
+    
+    const currentPage = parseInt(page as string) || 1;
+    const queryLimit = parseInt(limit as string) || 10;
+    const skip = (currentPage - 1) * queryLimit;
+    
+    let filter: Record<string, any> = {};
+    
+    // Filter by status
+    if(status) {
+        filter.status = status;
+    }
+    
+    // Filter by user
+    if(user) {
+        filter.user = user;
+    }
+    
+    // Filter by orderId
+    if(orderId) {
+        filter.orderId = { $regex: orderId, $options: 'i' };
+    }
 
-    const allOrders = await Order.find()
-    . populate('items.product')
-    .populate('user','-password');
+    //text search query 
+    if(query) {
+        filter.$or = [
+            {
+                orderId: { regex: query, $options: 'i'}
+            }
+        ]
+    }
 
-    res.status(201).json({
-        status: 'success',
+    
+    // Filter by price range
+    if(minAmount && maxAmount) {
+        filter.totalAmount = {
+            $gte: parseFloat(minAmount as string),
+            $lte: parseFloat(maxAmount as string)
+        };
+    } else if(minAmount) {
+        filter.totalAmount = { $gte: parseFloat(minAmount as string) };
+    } else if(maxAmount) {
+        filter.totalAmount = { $lte: parseFloat(maxAmount as string) };
+    }
+    
+    // Filter by date range
+    if(startDate && endDate) {
+        filter.createdAt = {
+            $gte: new Date(startDate as string),
+            $lte: new Date(endDate as string)
+        };
+    } else if(startDate) {
+        filter.createdAt = { $gte: new Date(startDate as string) };
+    } else if(endDate) {
+        filter.createdAt = { $lte: new Date(endDate as string) };
+    }
+    
+    const orders = await Order.find(filter)
+        .skip(skip)
+        .limit(queryLimit)
+        .sort({ createdAt: -1 }) // Most recent orders first
+        .populate('items.product')
+        .populate('user', '-password');
+    
+    const totalCount = await Order.countDocuments(filter);
+    
+    const pagination = getPaginationData(currentPage, queryLimit, totalCount);
+    
+    res.status(200).json({
         success: true,
-        message: 'order fetched successfully!',
-        data: allOrders
-    });
+        status: 'success',
+        data: {
+            data: orders,
+            pagination,
+        },
+        message: 'Orders fetched successfully!'
+    });
 });
 
 

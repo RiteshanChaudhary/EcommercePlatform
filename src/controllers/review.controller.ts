@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.util";
 import Review from "../models/review.model";
 import Product from "../models/product.model";
 import CustomError from "../middlewares/errorhandler.middleware";
+import { getPaginationData } from "../utils/pagination.utils";
 
 export const create = asyncHandler(async (req: Request, res: Response) => {
 
@@ -46,12 +47,43 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getAll = asyncHandler(async (req: Request, res: Response) => {
-  const reviews = await Review.find({});
 
+  const { limit, page, query, rating,product} = req.query
+  const queryLimit = parseInt(limit as string) || 10;
+  const currentPage = parseInt(page as string) || 1;
+  const skip = (currentPage - 1) * queryLimit;
+  let filter: Record<string, any> = {};
+  if(rating){
+    filter.rating = parseInt(rating as string)
+  }
+
+  if(product) {
+    filter.product = product
+  }
+
+  if (query) {
+    filter.$or = [
+      {
+        review: { $regex: query, $options: "i" },
+      },
+    ];
+  }
+  const reviews = await Review.find(filter)
+  .skip(skip)
+  .limit(queryLimit)
+  .populate("product")
+  .populate("user");
+
+  const totalCount = await Review.countDocuments(filter);
+
+  const pagination = getPaginationData(currentPage, queryLimit, totalCount);
   res.status(200).json({
     success: true,
     status: "success",
-    data: reviews,
+    data: {
+      data:reviews,
+      pagination
+    },
     message: "Reviews fetched successfully!",
   });
 });

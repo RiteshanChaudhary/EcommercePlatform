@@ -5,16 +5,56 @@ import { generateToken } from "../utils/jwt.util";
 import { IPayload } from "../@types/global.types";
 import { asyncHandler } from "../utils/asyncHandler.util";
 import CustomError from "../middlewares/errorhandler.middleware";
+import { getPaginationData } from "../utils/pagination.utils";
 
 export const getAll = asyncHandler(async (req: Request, res: Response) => {
-  const users = await User.find({});
-
-  res.status(200).json({
-    success: true,
-    status: "success",
-    data: users,
-    message: "Products fetched successfully!",
-  });
+    const {page, limit, query, role, gender} = req.query;
+    
+    const currentPage = parseInt(page as string) || 1;
+    const queryLimit = parseInt(limit as string) || 10;
+    const skip = (currentPage - 1) * queryLimit;
+    
+    let filter: Record<string, any> = {};
+    
+    // Filter by role
+    if(role) {
+        filter.role = role;
+    }
+    
+    // Filter by gender
+    if(gender) {
+        filter.gender = gender;
+    }
+    
+    // Text search query
+    if(query) {
+        filter.$or = [
+            { firstName: { $regex: query, $options: 'i' } },
+            { lastName: { $regex: query, $options: 'i' } },
+            { email: { $regex: query, $options: 'i' } },
+            { phoneNumber: { $regex: query, $options: 'i' } }
+        ];
+    }
+    
+    const users = await User.find(filter)
+        .select('-password') // Exclude password from results
+        .skip(skip)
+        .limit(queryLimit)
+        .sort({ createdAt: -1 });
+    
+    const totalCount = await User.countDocuments(filter);
+    
+    const pagination = getPaginationData(currentPage, queryLimit, totalCount);
+    
+    res.status(200).json({
+        success: true,
+        status: "success",
+        data: {
+            data: users,
+            pagination,
+        },
+        message: "Users fetched successfully",
+    });
 });
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
