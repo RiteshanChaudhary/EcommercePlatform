@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import User from "../models/user.model";
 import { hash, compare } from "../utils/bcrypt.util";
 import { generateToken } from "../utils/jwt.util";
-import { IPayload } from "../@types/global.types";
+import { IPayload, Role } from "../@types/global.types";
 import { asyncHandler } from "../utils/asyncHandler.util";
 import CustomError from "../middlewares/errorhandler.middleware";
 import { getPaginationData } from "../utils/pagination.utils";
@@ -35,6 +35,8 @@ export const getAll = asyncHandler(async (req: Request, res: Response) => {
             { phoneNumber: { $regex: query, $options: 'i' } }
         ];
     }
+
+    filter.role = Role.user
     
     const users = await User.find(filter)
         .select('-password') // Exclude password from results

@@ -71,6 +71,7 @@ export const getAll = asyncHandler(async (req: Request, res: Response) => {
   const reviews = await Review.find(filter)
   .skip(skip)
   .limit(queryLimit)
+  .sort({createdAt:-1})
   .populate("product")
   .populate("user");
 

@@ -13,7 +13,7 @@ router.post('/add',Authenticate(onlyUser),create)
 
 router.delete('/clear',Authenticate(onlyUser),clearCart)
 
-router.get('/:userId',Authenticate(onlyUser),getCartByUserId)
+router.get('/:id',Authenticate(onlyUser),getCartByUserId)
 
 router.delete('/remove/:productId',Authenticate(onlyUser),removeItemFromCart)
 

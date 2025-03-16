@@ -37,7 +37,7 @@ export const getAll = asyncHandler(async (req: Request, res: Response) => {
   const categories = await Category.find(filter)
   .skip(skip)
   .limit(queryLimit)
-  .populate("createdBy");
+  .sort({createdAt:-1});
 
   const totalCount = await Category.countDocuments(filter);
 

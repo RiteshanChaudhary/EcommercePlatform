@@ -146,7 +146,16 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getAll = asyncHandler(async (req: Request, res: Response) => {
-  const { limit, page, query, category, minPrice, maxPrice } = req.query;
+  const {
+    limit,
+    page,
+    query,
+    category,
+    minPrice,
+    maxPrice,
+    sortBy = "createdAt",
+    order = "DESC",
+  } = req.query;
   const queryLimit = parseInt(limit as string) || 10;
   const currentPage = parseInt(page as string) || 1;
   const skip = (currentPage - 1) * queryLimit;
@@ -156,11 +165,11 @@ export const getAll = asyncHandler(async (req: Request, res: Response) => {
     filter.category = category;
   }
 
-  if(minPrice && maxPrice) {
-     filter.price = {
-      $lte : parseFloat(maxPrice as string),
-      $gte : parseFloat(minPrice as string)
-     }
+  if (minPrice && maxPrice) {
+    filter.price = {
+      $lte: parseFloat(maxPrice as string),
+      $gte: parseFloat(minPrice as string),
+    };
   }
 
   if (query) {
@@ -178,7 +187,8 @@ export const getAll = asyncHandler(async (req: Request, res: Response) => {
     .skip(skip)
     .limit(queryLimit)
     .populate("createdBy")
-    .populate("category");
+    .populate("category")
+    .sort({ [sortBy as string]: order === "DESC" ? -1 : 1 });
 
   const totalCount = await Product.countDocuments(filter);
 
