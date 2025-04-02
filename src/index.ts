@@ -27,9 +27,7 @@ app.use(express.json());
 // serving static files
 app.use("/api/uploads", express.static(path.join(__dirname, "../", "uploads")));
 
-app.use("/",(req:Request,res:Response)=> {
-  res.status(200).json({message:"Server is up and running"});
-})
+
 
 console.log("👊 ~ index.ts:23 ~ __dirname:", __dirname);
 
@@ -41,6 +39,10 @@ app.use("/api/review", reviewRoutes);
 app.use('/api/cart',cartRoutes)
 app.use('/api/wishlist',wishlistRoutes)
 app.use('/api/order', orderRoutes);
+
+app.use("/",(req:Request,res:Response)=> {
+  res.status(200).json({message:"Server is up and running"});
+})
 
 // handle not found path
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
