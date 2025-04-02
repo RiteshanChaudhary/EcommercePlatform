@@ -22,9 +22,14 @@ connectDatabase(DB_URI);
 
 // using middlewares
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 // serving static files
 app.use("/api/uploads", express.static(path.join(__dirname, "../", "uploads")));
+
+app.use("/",(req:Request,res:Response)=> {
+  res.status(200).json({message:"Server is up and running"});
+})
 
 console.log("👊 ~ index.ts:23 ~ __dirname:", __dirname);
 
