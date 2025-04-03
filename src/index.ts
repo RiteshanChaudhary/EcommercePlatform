@@ -13,6 +13,7 @@ import reviewRoutes from "./routes/review.routes";
 import cartRoutes from './routes/cart.routes'
 import wishlistRoutes from './routes/wishlist.routes'
 import orderRoutes from './routes/order.routes'
+import cors from 'cors'
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -21,6 +22,9 @@ const DB_URI = process.env.DB_URI || "";
 connectDatabase(DB_URI);
 
 // using middlewares
+app.use(cors({
+  origin:'*'
+}))
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 

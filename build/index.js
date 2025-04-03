@@ -17,11 +17,15 @@ const review_routes_1 = __importDefault(require("./routes/review.routes"));
 const cart_routes_1 = __importDefault(require("./routes/cart.routes"));
 const wishlist_routes_1 = __importDefault(require("./routes/wishlist.routes"));
 const order_routes_1 = __importDefault(require("./routes/order.routes"));
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8000;
 const DB_URI = process.env.DB_URI || "";
 (0, database_config_1.connectDatabase)(DB_URI);
 // using middlewares
+app.use((0, cors_1.default)({
+    origin: '*'
+}));
 app.use(express_1.default.urlencoded({ extended: false }));
 app.use(express_1.default.json());
 // serving static files
