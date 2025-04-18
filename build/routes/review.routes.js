@@ -15,7 +15,7 @@ router.get("/", (0, authentication_middleware_1.Authenticate)(global_types_1.onl
 // update review by id
 router.put('/:id', (0, authentication_middleware_1.Authenticate)(global_types_1.onlyUser), review_controller_1.update);
 // get user review by product id
-router.get('/:id', (0, authentication_middleware_1.Authenticate)(global_types_1.onlyAdmin), review_controller_1.getReviewByProductId);
+router.get('/:id', review_controller_1.getReviewByProductId);
 // delete review by id 
 router.delete('/:id', review_controller_1.remove);
 exports.default = router;

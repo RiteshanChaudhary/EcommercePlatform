@@ -15,7 +15,7 @@ router.get("/", Authenticate(onlyAdmin), getAll);
 router.put('/:id',Authenticate(onlyUser), update)
 
 // get user review by product id
-router.get('/:id',Authenticate(onlyAdmin), getReviewByProductId)
+router.get('/:id', getReviewByProductId)
 
 // delete review by id 
 router.delete('/:id',remove)
