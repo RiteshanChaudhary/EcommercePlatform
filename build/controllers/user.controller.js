@@ -140,5 +140,6 @@ exports.login = (0, asyncHandler_util_1.asyncHandler)((req, res) => __awaiter(vo
         success: true,
         message: "Login success",
         token,
+        user,
     });
 }));
