@@ -110,7 +110,7 @@ exports.adminlogin = (0, asyncHandler_util_1.asyncHandler)((req, res) => __await
     // 2.const user= user.findOne({email:email})
     const user = yield user_model_1.default.findOne({ email });
     // 3 if !user ->  error
-    if (!user || user.role == global_types_1.Role.admin) {
+    if (!user || user.role !== global_types_1.Role.admin) {
         throw new errorhandler_middleware_1.default("Email or password does not match", 400);
     }
     // 4. compare hash

@@ -131,7 +131,7 @@ export const adminlogin = asyncHandler(async (req: Request, res: Response) => {
   const user = await User.findOne({ email });
 
   // 3 if !user ->  error
-  if (!user ||  user.role ! == Role.admin) {
+  if (!user ||  user.role !== Role.admin) {
     throw new CustomError("Email or password does not match", 400);
 
   }
