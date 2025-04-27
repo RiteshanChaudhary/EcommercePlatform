@@ -113,6 +113,66 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
+export const adminlogin = asyncHandler(async (req: Request, res: Response) => {
+  // 1. email pass <-- body
+
+  const { email, password } = req.body;
+
+  if (!email) {
+    throw new CustomError("Email is required", 400);
+  }
+
+  if (!password) {
+    throw new CustomError("Password is required", 400);
+  }
+
+  // 2.const user= user.findOne({email:email})
+
+  const user = await User.findOne({ email });
+
+  // 3 if !user ->  error
+  if (!user ||  user.role ! == Role.admin) {
+    throw new CustomError("Email or password does not match", 400);
+
+  }
+
+  // 4. compare hash
+
+  const isMatch = await compare(password, user.password);
+
+  if (!isMatch) {
+    throw new CustomError("Email or password does not match", 400);
+
+   
+  }
+
+  const payload: IPayload = {
+    _id: user._id,
+    email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    role: user.role,
+  };
+
+  const token = generateToken(payload);
+
+  console.log("👊 ~ user.controller.ts:151 ~ login ~ token:", token);
+
+  res
+    .cookie("access_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    })
+    .status(200)
+    .json({
+      status: "success",
+      success: true,
+      message: "Login success",
+      token,
+      user,
+});
+});
+
 export const login = asyncHandler(async (req: Request, res: Response) => {
   // 1. email pass <-- body
 

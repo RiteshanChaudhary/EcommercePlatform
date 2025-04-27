@@ -16,4 +16,5 @@ router.get("/", (0, authentication_middleware_1.Authenticate)(global_types_1.onl
 router.put("/:id", (0, authentication_middleware_1.Authenticate)(global_types_1.onlyUser), user_controller_1.update);
 // login
 router.post("/login", user_controller_1.login);
+router.post("/admin/login", user_controller_1.adminlogin);
 exports.default = router;
