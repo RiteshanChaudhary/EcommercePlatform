@@ -7,49 +7,70 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const productSchema = new mongoose_1.default.Schema({
     name: {
         type: String,
-        required: [true, 'Product name is required'],
+        required: [true, "Product name is required"],
         trim: true,
     },
     price: {
         type: Number,
-        required: [true, 'price is required'],
-        min: [0, "price should be greater than 0"]
+        required: [true, "price is required"],
+        min: [0, "price should be greater than 0"],
     },
     description: {
         type: String,
         required: false,
-        min: [50, 'description should be at least 50 character long'],
-        trim: true
+        min: [50, "description should be at least 50 character long"],
+        trim: true,
     },
     coverImage: {
-        type: String,
-        required: false
-    },
-    images: [{
+        public_id: {
             type: String,
-            required: false
-        }],
+            required: true,
+        },
+        path: {
+            type: String,
+            required: true,
+        },
+    },
+    images: [
+        {
+            public_id: {
+                type: String,
+                required: true,
+            },
+            path: {
+                type: String,
+                required: true,
+            }
+        },
+    ],
     createdBy: {
         type: mongoose_1.default.Types.ObjectId,
-        ref: 'user',
-        required: [true, 'Author is required']
+        ref: "user",
+        required: [true, "Author is required"],
     },
     category: {
         type: mongoose_1.default.Types.ObjectId,
-        ref: 'category',
-        required: [true, 'Category is required']
+        ref: "category",
+        required: [true, "Category is required"],
     },
     reviews: [
         {
             type: mongoose_1.default.Types.ObjectId,
-            ref: 'review',
-            required: false
-        }
+            ref: "review",
+            required: false,
+        },
     ],
     averageRating: {
         type: Number,
-        default: 0
-    }
+        default: 0,
+    },
+    wishLists: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: "product",
+            required: true,
+        },
+    ],
 }, { timestamps: true });
-const Product = mongoose_1.default.model('product', productSchema);
+const Product = mongoose_1.default.model("product", productSchema);
 exports.default = Product;
